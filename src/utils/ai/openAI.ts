@@ -21,6 +21,9 @@ const fetchOpenAICompletion = async (content: string): Promise<string> => {
 			{ role: "user", content: content },
 		],
 		store: true,
+		response_format: {
+			type: "json_object",
+		},
 	});
 
 	return completion.choices[0].message.content || "";
