@@ -13,22 +13,23 @@ fal.config({
  * @returns {Promise<object>} - The FAL response.
  */
 const fetchFalCompletion = async (prompt: string): Promise<any> => {
-  const result = await fal.subscribe("fal-ai/flux/schnell", {
-    input: {
-      prompt,
-    },
-    logs: false,
-    // onQueueUpdate: (update) => {
-    //   if (update.status === "IN_PROGRESS") {
-    //     update.logs.map((log) => log.message).forEach(console.log);
-    //   }
-    // },
-  });
+	const result = await fal.subscribe("fal-ai/flux/schnell", {
+		input: {
+			prompt,
+			image_size: {
+				width: 512,
+				height: 512,
+			},
+			num_images: 1,
+			enable_safety_checker: true, 
+		},
+		logs: false,
+	});
 
-  return {
-    data: result.data,
-    requestId: result.requestId,
-  };
+	return {
+		data: result.data,
+		requestId: result.requestId,
+	};
 };
 
 export default fetchFalCompletion;
