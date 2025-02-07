@@ -73,7 +73,7 @@ COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/characters ./characters
 
 # Expose necessary ports
-EXPOSE 3000
+EXPOSE 8080
 
 # Command to start the application
 CMD ["sh", "-c", "pnpm start"]
