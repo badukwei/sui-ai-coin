@@ -1,13 +1,14 @@
 module store::store {
     use sui::event::emit;
-    use sui::coin::{Self, Coin};
-    use sui::balance::{Balance};
+    use sui::coin::{Self, TreasuryCap, Coin};
+    use sui::balance::{Self, Balance};
     use sui::dynamic_object_field::{Self};
     use std::string::String;
 
     // Constants
-    const BASIC_UPDATE_AMOUNT: u64 = 1000;
     const TOTAL_AMOUNT: u64 = 1000000000;
+    const BASIC_UPDATE_AMOUNT: u64 = 1000;
+    const BASIC_CHAT_FEE_AMOUNT: u64 = 10;
     const MIN_LENGTH: u64 = 1;
 
     // Errors 
@@ -27,6 +28,8 @@ module store::store {
         bot_id: String,
         name: String,
         symbol: String,
+        description: String,
+        url: String,
         ca: String,
         bot_json: String,
     } 
@@ -53,6 +56,8 @@ module store::store {
     public struct Config has key, store {
         id: UID,
         deployment_fee: u64,
+        update_reward: u64,
+        chat_use_fee: u64,
     }
 
     public struct BotPool<phantom T> has key, store {
@@ -73,6 +78,8 @@ module store::store {
         let config = Config {
             id: object::new(ctx),
             deployment_fee: 100000000,
+            update_reward: BASIC_UPDATE_AMOUNT,
+            chat_use_fee: BASIC_CHAT_FEE_AMOUNT,
         };
 
         let _event = InitConfigEvent {
@@ -88,10 +95,12 @@ module store::store {
 
     public fun create_bot<T>(
         config: &mut Config,
-        deposit: Coin<T>,
+        treasury: TreasuryCap<T>,
         bot_id: String,
         name: String,
         symbol: String,
+        description: String,
+        url: String,
         ca: String,
         bot_json: String,
         ctx: &mut TxContext,
@@ -100,9 +109,10 @@ module store::store {
         if (ca.length() < MIN_LENGTH) err_ca_too_short();
         if (name.length() < MIN_LENGTH) err_name_too_short();
         if (symbol.length() < MIN_LENGTH) err_symbol_too_short();
-        if (deposit.value() != TOTAL_AMOUNT) err_not_enough_fund();
 
         let id = object::new(ctx);
+        let mut treasury_mut = treasury;
+        let deposit = coin::mint(&mut treasury_mut, TOTAL_AMOUNT, ctx);
 
         let pool = BotPool {
             id: id,
@@ -118,11 +128,14 @@ module store::store {
             bot_id: bot_id,
             name: name,
             symbol: symbol,
+            description: description,
+            url: url,
             ca: ca,
             bot_json: bot_json,
         };
 
         emit<CreateBotEvent>(_event);
+        transfer::public_transfer<coin::TreasuryCap<T>>(treasury_mut, @0x0);
         dynamic_object_field::add(&mut config.id, ca, pool);
     }
 
@@ -144,8 +157,9 @@ module store::store {
         let pool = dynamic_object_field::borrow_mut<String, BotPool<T>>(&mut config.id, ca);
 
         pool.bot_json = bot_json;
-        
-        let _coin = coin::from_balance<T>(0x2::balance::split<T>(&mut pool.token_reserve, BASIC_UPDATE_AMOUNT), ctx);
+
+        let update_reward = config.update_reward;  
+        let _coin = coin::from_balance<T>(0x2::balance::split<T>(&mut pool.token_reserve, update_reward), ctx);
 
         let _event = UpdateBotEvent{
             bot_id: bot_id,
@@ -161,5 +175,16 @@ module store::store {
             _coin,
             recipient
         )
+    }
+
+    public fun chat_with_bot<T>(
+        config: &mut Config,
+        deposit: Coin<T>,
+        ca: String,
+    ) {
+        if (deposit.value() < BASIC_CHAT_FEE_AMOUNT) err_not_enough_fund();
+        let pool = dynamic_object_field::borrow_mut<String, BotPool<T>>(&mut config.id, ca);
+        let balance_deposit = deposit.into_balance();
+        balance::join<T>(&mut pool.token_reserve, balance_deposit);
     }
 } 
