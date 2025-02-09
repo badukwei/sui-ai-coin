@@ -9,6 +9,7 @@ module store::store {
     const TOTAL_AMOUNT: u64 = 1000000000;
     const BASIC_UPDATE_AMOUNT: u64 = 1000;
     const BASIC_CHAT_FEE_AMOUNT: u64 = 10;
+    const BASIC_DONATE_AMOUNT: u64 = 100;
     const MIN_LENGTH: u64 = 1;
 
     // Errors 
@@ -46,6 +47,17 @@ module store::store {
     public struct InitConfigEvent has copy, drop {
         admin_cap_id: ID,
         config_id: ID,
+    }
+
+    public struct ChatEvent has copy, drop, store {
+        sender: address,
+        amount: u64,
+    }
+
+
+    public struct DonateEvent has copy, drop, store {
+        donator: address,
+        donate_amount: u64,
     }
 
     // structs
@@ -180,10 +192,35 @@ module store::store {
     public fun chat_with_bot<T>(
         config: &mut Config,
         deposit: Coin<T>,
+        sender: address,
         ca: String,
     ) {
         if (deposit.value() < BASIC_CHAT_FEE_AMOUNT) err_not_enough_fund();
         let pool = dynamic_object_field::borrow_mut<String, BotPool<T>>(&mut config.id, ca);
+        let _event = ChatEvent {
+            sender: sender,
+            amount: deposit.value()
+        };
+
+        emit<ChatEvent>(_event);
+        let balance_deposit = deposit.into_balance();
+        balance::join<T>(&mut pool.token_reserve, balance_deposit);
+    }
+
+     public fun donate_to_bot<T>(
+        config: &mut Config,
+        deposit: Coin<T>,
+        sender: address,
+        ca: String,
+    ) {
+        if (deposit.value() < BASIC_DONATE_AMOUNT) err_not_enough_fund();
+        let pool = dynamic_object_field::borrow_mut<String, BotPool<T>>(&mut config.id, ca);
+        let _event = DonateEvent {
+            donator: sender,
+            donate_amount: deposit.value()
+        };
+
+        emit<DonateEvent>(_event);
         let balance_deposit = deposit.into_balance();
         balance::join<T>(&mut pool.token_reserve, balance_deposit);
     }
