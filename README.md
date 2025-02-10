@@ -1,4 +1,5 @@
 # 🚀 Sui AI Coin
+**Note: Please use testnet!!!!!!!!!**
 
 ## 📖 Project Description
 
@@ -29,6 +30,7 @@ Sui AI Coin aims to redefine the way people interact with AI by integrating **cu
 [Live Demo](https://www.youtube.com/watch?v=CLLiianiHt8)  
 
 ### 🔹 Demo Website  
+**Note: Please use testnet!!!!!!!!!**
 [Demo Website](https://suiaicoin.vercel.app)  
 
 ## 🛠 Installation & Running the Frontend
