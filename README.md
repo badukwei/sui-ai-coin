@@ -35,6 +35,8 @@ Sui AI Coin aims to redefine the way people interact with AI by integrating **cu
 
 The backend and smart contracts are **already deployed**, so you only need to run the frontend locally or just use the [Demo Website](https://suiaicoin.vercel.app).
 
+- **Node.js** (>= 20.x) 
+
 ### 1️⃣ Clone the Repository
 ```bash
 git clone https://github.com/badukwei/sui-ai-coin.git

@@ -4,7 +4,6 @@ dist/
 
 # Ignore environment variables
 .env
-.env.*
 
 # Ignore files in the .vscode directory
 .vscode/
