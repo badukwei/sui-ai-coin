@@ -26,7 +26,7 @@ Sui AI Coin aims to redefine the way people interact with AI by integrating **cu
 ## 🎥 Demo
 
 ### 🔹 Demo Video  
-[Live Demo](https://your-demo-url.com)  
+[Live Demo](https://www.youtube.com/watch?v=CLLiianiHt8)  
 
 ### 🔹 Demo Website  
 [Demo Website](https://suiaicoin.vercel.app)  
