@@ -1,5 +1,4 @@
 import { AtomaSDK } from "atoma-sdk";
-import { atomaSystemMessage } from "../../../constants/ai/atoma";
 
 const atomaSDK = new AtomaSDK({
 	bearerAuth: process.env["ATOMASDK_BEARER_AUTH"] ?? "",
