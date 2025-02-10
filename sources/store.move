@@ -42,6 +42,7 @@ module store::store {
         ca: String,
         old_bot_json: String,
         new_bot_json: String,
+        sender: address,
     } 
 
     public struct InitConfigEvent has copy, drop {
@@ -50,12 +51,14 @@ module store::store {
     }
 
     public struct ChatEvent has copy, drop, store {
+        ca: String,
         sender: address,
         amount: u64,
     }
 
 
     public struct DonateEvent has copy, drop, store {
+        ca: String,
         donator: address,
         donate_amount: u64,
     }
@@ -179,7 +182,8 @@ module store::store {
             symbol,
             ca: ca,
             old_bot_json: pool.bot_json,
-            new_bot_json: bot_json
+            new_bot_json: bot_json,
+            sender: recipient,
         };
 
         emit<UpdateBotEvent>(_event);
@@ -198,6 +202,7 @@ module store::store {
         if (deposit.value() < BASIC_CHAT_FEE_AMOUNT) err_not_enough_fund();
         let pool = dynamic_object_field::borrow_mut<String, BotPool<T>>(&mut config.id, ca);
         let _event = ChatEvent {
+            ca: ca,
             sender: sender,
             amount: deposit.value()
         };
@@ -216,6 +221,7 @@ module store::store {
         if (deposit.value() < BASIC_DONATE_AMOUNT) err_not_enough_fund();
         let pool = dynamic_object_field::borrow_mut<String, BotPool<T>>(&mut config.id, ca);
         let _event = DonateEvent {
+            ca: ca,
             donator: sender,
             donate_amount: deposit.value()
         };
